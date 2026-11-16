@@ -2,8 +2,10 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { Transaction, StatementInfo } from './types';
 import { categorizeTransaction } from './categorizer';
 
-// Set up the worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use Vite's ?url import to bundle the worker locally
+// This avoids CDN issues and ensures the correct version is always used
+import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 export async function parsePDF(file: File): Promise<{
   transactions: Transaction[];
