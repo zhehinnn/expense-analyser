@@ -21,7 +21,6 @@ function App() {
     setError(null);
     try {
       const result = await parsePDF(file);
-      console.log(result);
       setTransactions(result.transactions);
       setStatementInfo(result.statementInfo);
       setRawText(result.rawText);
