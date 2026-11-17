@@ -73,7 +73,7 @@ function extractTransactions(text: string): Transaction[] {
   
   let transactionId = 0;
   
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < (lines.length - 1); i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
@@ -95,6 +95,7 @@ function extractTransactions(text: string): Transaction[] {
     
     // Extract description (text before the first amount)
     let description = '';
+    let ref = '';
     let withdrawal = 0;
     let deposit = 0;
     let balance = 0;
@@ -108,6 +109,10 @@ function extractTransactions(text: string): Transaction[] {
       const firstAmountIndex = restOfLine.search(amountPattern);
       if (firstAmountIndex > 0) {
         description = restOfLine.substring(0, firstAmountIndex).trim();
+      }
+      let lineAfter = lines[i+1].trim();
+      if (lineAfter.split(' ')[0].includes('XXXXXX') || lineAfter.split(' ')[0].includes('VISA')) {
+        ref = lineAfter.trim().replace(/^\S+\s*/, '');
       }
       
       // Parse amounts
@@ -147,7 +152,6 @@ function extractTransactions(text: string): Transaction[] {
         balance = parsedAmounts[0];
       }
     }
-    
     // Clean up description
     description = description
       .replace(/\s+/g, ' ')
@@ -160,6 +164,7 @@ function extractTransactions(text: string): Transaction[] {
         id: `txn-${transactionId}`,
         date: normalizeDate(dateStr),
         description,
+        ref,
         withdrawal,
         deposit,
         balance,
@@ -215,36 +220,36 @@ function extractStatementInfo(text: string, transactions: Transaction[]): Statem
 export function parseDemoData(): { transactions: Transaction[]; statementInfo: StatementInfo } {
   // Demo data simulating a Public Bank statement
   const demoTransactions: Transaction[] = [
-    { id: '1', date: '2024-01-02', description: 'SALARY PAYMENT', withdrawal: 0, deposit: 5500.00, balance: 12500.00, category: 'Income' },
-    { id: '2', date: '2024-01-03', description: 'GRAB RIDE', withdrawal: 15.80, deposit: 0, balance: 12484.20, category: 'Transportation' },
-    { id: '3', date: '2024-01-04', description: 'SHOPEE SP', withdrawal: 89.90, deposit: 0, balance: 12394.30, category: 'Shopping' },
-    { id: '4', date: '2024-01-05', description: 'STARBUCKS COFFEE', withdrawal: 18.50, deposit: 0, balance: 12375.80, category: 'Food & Dining' },
-    { id: '5', date: '2024-01-06', description: 'PETRONAS FUEL', withdrawal: 150.00, deposit: 0, balance: 12225.80, category: 'Transportation' },
-    { id: '6', date: '2024-01-07', description: 'TNB BILL PAYMENT', withdrawal: 185.30, deposit: 0, balance: 12040.50, category: 'Bills & Utilities' },
-    { id: '7', date: '2024-01-08', description: 'NETFLIX SUBSCRIPTION', withdrawal: 54.90, deposit: 0, balance: 11985.60, category: 'Entertainment' },
-    { id: '8', date: '2024-01-09', description: 'MCDONALD', withdrawal: 25.90, deposit: 0, balance: 11959.70, category: 'Food & Dining' },
-    { id: '9', date: '2024-01-10', description: 'UNIFI BILL', withdrawal: 149.00, deposit: 0, balance: 11810.70, category: 'Bills & Utilities' },
-    { id: '10', date: '2024-01-11', description: 'ATM WITHDRAWAL', withdrawal: 500.00, deposit: 0, balance: 11310.70, category: 'ATM & Cash' },
-    { id: '11', date: '2024-01-12', description: 'GUARDIAN PHARMACY', withdrawal: 45.60, deposit: 0, balance: 11265.10, category: 'Healthcare' },
-    { id: '12', date: '2024-01-13', description: 'GRABFOOD ORDER', withdrawal: 32.50, deposit: 0, balance: 11232.60, category: 'Food & Dining' },
-    { id: '13', date: '2024-01-14', description: 'LAZADA PURCHASE', withdrawal: 259.00, deposit: 0, balance: 10973.60, category: 'Shopping' },
-    { id: '14', date: '2024-01-15', description: 'TOLL PLUS', withdrawal: 50.00, deposit: 0, balance: 10923.60, category: 'Transportation' },
-    { id: '15', date: '2024-01-16', description: 'AIA INSURANCE', withdrawal: 350.00, deposit: 0, balance: 10573.60, category: 'Insurance' },
-    { id: '16', date: '2024-01-17', description: 'CAFE COFFEE DAY', withdrawal: 22.00, deposit: 0, balance: 10551.60, category: 'Food & Dining' },
-    { id: '17', date: '2024-01-18', description: 'SPOTIFY PREMIUM', withdrawal: 15.90, deposit: 0, balance: 10535.70, category: 'Entertainment' },
-    { id: '18', date: '2024-01-19', description: 'SHELL FUEL', withdrawal: 120.00, deposit: 0, balance: 10415.70, category: 'Transportation' },
-    { id: '19', date: '2024-01-20', description: 'RESTAURANT NASI KANDAR', withdrawal: 35.00, deposit: 0, balance: 10380.70, category: 'Food & Dining' },
-    { id: '20', date: '2024-01-21', description: 'MR DIY PURCHASE', withdrawal: 67.80, deposit: 0, balance: 10312.90, category: 'Shopping' },
-    { id: '21', date: '2024-01-22', description: 'DIGI POSTPAID', withdrawal: 80.00, deposit: 0, balance: 10232.90, category: 'Bills & Utilities' },
-    { id: '22', date: '2024-01-23', description: 'GRAB RIDE', withdrawal: 22.30, deposit: 0, balance: 10210.60, category: 'Transportation' },
-    { id: '23', date: '2024-01-24', description: 'FOODPANDA DELIVERY', withdrawal: 28.90, deposit: 0, balance: 10181.70, category: 'Food & Dining' },
-    { id: '24', date: '2024-01-25', description: 'GSC CINEMA', withdrawal: 45.00, deposit: 0, balance: 10136.70, category: 'Entertainment' },
-    { id: '25', date: '2024-01-26', description: 'WATSONS', withdrawal: 55.40, deposit: 0, balance: 10081.30, category: 'Healthcare' },
-    { id: '26', date: '2024-01-27', description: 'PARKING CHARGES', withdrawal: 5.00, deposit: 0, balance: 10076.30, category: 'Transportation' },
-    { id: '27', date: '2024-01-28', description: 'LUNCH MAMAK', withdrawal: 18.00, deposit: 0, balance: 10058.30, category: 'Food & Dining' },
-    { id: '28', date: '2024-01-29', description: 'INTERBANK TRANSFER', withdrawal: 1000.00, deposit: 0, balance: 9058.30, category: 'Transfer' },
-    { id: '29', date: '2024-01-30', description: 'COFFEE BEAN', withdrawal: 16.90, deposit: 0, balance: 9041.40, category: 'Food & Dining' },
-    { id: '30', date: '2024-01-31', description: 'DIVIDEND CREDIT', withdrawal: 0, deposit: 25.50, balance: 9066.90, category: 'Income' },
+    { id: '1', date: '2024-01-02', description: 'SALARY PAYMENT', ref: 'GG FK EZ', withdrawal: 0, deposit: 5500.00, balance: 12500.00, category: 'Income' },
+    { id: '2', date: '2024-01-03', description: 'GRAB RIDE', ref: 'GG FK EZ', withdrawal: 15.80, deposit: 0, balance: 12484.20, category: 'Transportation' },
+    { id: '3', date: '2024-01-04', description: 'SHOPEE SP', ref: 'GG FK EZ', withdrawal: 89.90, deposit: 0, balance: 12394.30, category: 'Shopping' },
+    { id: '4', date: '2024-01-05', description: 'STARBUCKS COFFEE', ref: 'GG FK EZ', withdrawal: 18.50, deposit: 0, balance: 12375.80, category: 'Food & Dining' },
+    { id: '5', date: '2024-01-06', description: 'PETRONAS FUEL', ref: 'GG FK EZ', withdrawal: 150.00, deposit: 0, balance: 12225.80, category: 'Transportation' },
+    { id: '6', date: '2024-01-07', description: 'TNB BILL PAYMENT' ,ref: 'GG FK EZ', withdrawal: 185.30, deposit: 0, balance: 12040.50, category: 'Bills & Utilities' },
+    { id: '7', date: '2024-01-08', description: 'NETFLIX SUBSCRIPTION' ,ref: 'GG FK EZ', withdrawal: 54.90, deposit: 0, balance: 11985.60, category: 'Entertainment' },
+    { id: '8', date: '2024-01-09', description: 'MCDONALD' ,ref: 'GG FK EZ', withdrawal: 25.90, deposit: 0, balance: 11959.70, category: 'Food & Dining' },
+    { id: '9', date: '2024-01-10', description: 'UNIFI BILL' ,ref: 'GG FK EZ', withdrawal: 149.00, deposit: 0, balance: 11810.70, category: 'Bills & Utilities' },
+    { id: '10', date: '2024-01-11', description: 'ATM WITHDRAWAL', ref: 'GG FK EZ', withdrawal: 500.00, deposit: 0, balance: 11310.70, category: 'ATM & Cash' },
+    { id: '11', date: '2024-01-12', description: 'GUARDIAN PHARMACY', ref: 'GG FK EZ', withdrawal: 45.60, deposit: 0, balance: 11265.10, category: 'Healthcare' },
+    { id: '12', date: '2024-01-13', description: 'GRABFOOD ORDER', ref: 'GG FK EZ', withdrawal: 32.50, deposit: 0, balance: 11232.60, category: 'Food & Dining' },
+    { id: '13', date: '2024-01-14', description: 'LAZADA PURCHASE' ,ref: 'GG FK EZ', withdrawal: 259.00, deposit: 0, balance: 10973.60, category: 'Shopping' },
+    { id: '14', date: '2024-01-15', description: 'TOLL PLUS', ref: 'GG FK EZ', withdrawal: 50.00, deposit: 0, balance: 10923.60, category: 'Transportation' },
+    { id: '15', date: '2024-01-16', description: 'AIA INSURANCE', ref: 'GG FK EZ', withdrawal: 350.00, deposit: 0, balance: 10573.60, category: 'Insurance' },
+    { id: '16', date: '2024-01-17', description: 'CAFE COFFEE DAY', ref: 'GG FK EZ', withdrawal: 22.00, deposit: 0, balance: 10551.60, category: 'Food & Dining' },
+    { id: '17', date: '2024-01-18', description: 'SPOTIFY PREMIUM', ref: 'GG FK EZ', withdrawal: 15.90, deposit: 0, balance: 10535.70, category: 'Entertainment' },
+    { id: '18', date: '2024-01-19', description: 'SHELL FUEL', ref: 'GG FK EZ', withdrawal: 120.00, deposit: 0, balance: 10415.70, category: 'Transportation' },
+    { id: '19', date: '2024-01-20', description: 'RESTAURANT NASI KANDAR', ref: 'GG FK EZ', withdrawal: 35.00, deposit: 0, balance: 10380.70, category: 'Food & Dining' },
+    { id: '20', date: '2024-01-21', description: 'MR DIY PURCHASE', ref: 'GG FK EZ', withdrawal: 67.80, deposit: 0, balance: 10312.90, category: 'Shopping' },
+    { id: '21', date: '2024-01-22', description: 'DIGI POSTPAID', ref: 'GG FK EZ', withdrawal: 80.00, deposit: 0, balance: 10232.90, category: 'Bills & Utilities' },
+    { id: '22', date: '2024-01-23', description: 'GRAB RIDE', ref: 'GG FK EZ', withdrawal: 22.30, deposit: 0, balance: 10210.60, category: 'Transportation' },
+    { id: '23', date: '2024-01-24', description: 'FOODPANDA DELIVERY', ref: 'GG FK EZ', withdrawal: 28.90, deposit: 0, balance: 10181.70, category: 'Food & Dining' },
+    { id: '24', date: '2024-01-25', description: 'GSC CINEMA', ref: 'GG FK EZ', withdrawal: 45.00, deposit: 0, balance: 10136.70, category: 'Entertainment' },
+    { id: '25', date: '2024-01-26', description: 'WATSONS', ref: 'GG FK EZ', withdrawal: 55.40, deposit: 0, balance: 10081.30, category: 'Healthcare' },
+    { id: '26', date: '2024-01-27', description: 'PARKING CHARGES', ref: 'GG FK EZ', withdrawal: 5.00, deposit: 0, balance: 10076.30, category: 'Transportation' },
+    { id: '27', date: '2024-01-28', description: 'LUNCH MAMAK', ref: 'GG FK EZ', withdrawal: 18.00, deposit: 0, balance: 10058.30, category: 'Food & Dining' },
+    { id: '28', date: '2024-01-29', description: 'INTERBANK TRANSFER', ref: 'GG FK EZ', withdrawal: 1000.00, deposit: 0, balance: 9058.30, category: 'Transfer' },
+    { id: '29', date: '2024-01-30', description: 'COFFEE BEAN', ref: 'GG FK EZ', withdrawal: 16.90, deposit: 0, balance: 9041.40, category: 'Food & Dining' },
+    { id: '30', date: '2024-01-31', description: 'DIVIDEND CREDIT', ref: 'GG FK EZ', withdrawal: 0, deposit: 25.50, balance: 9066.90, category: 'Income' },
   ];
   
   const totalIncome = demoTransactions.reduce((sum, t) => sum + t.deposit, 0);

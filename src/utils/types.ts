@@ -2,6 +2,7 @@ export interface Transaction {
   id: string;
   date: string;
   description: string;
+  ref: string;
   withdrawal: number;
   deposit: number;
   balance: number;

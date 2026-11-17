@@ -88,6 +88,9 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ transactions
                 Description
               </th>
               <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                Reference
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
                 Category
               </th>
               <th
@@ -121,6 +124,9 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ transactions
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-800 max-w-xs truncate">
                   {txn.description}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-800 max-w-xs truncate">
+                  {txn.ref}
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">

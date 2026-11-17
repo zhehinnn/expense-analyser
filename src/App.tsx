@@ -21,6 +21,7 @@ function App() {
     setError(null);
     try {
       const result = await parsePDF(file);
+      console.log(result);
       setTransactions(result.transactions);
       setStatementInfo(result.statementInfo);
       setRawText(result.rawText);
@@ -56,10 +57,11 @@ function App() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Date', 'Description', 'Category', 'Withdrawal', 'Deposit', 'Balance'];
+    const headers = ['Date', 'Description', 'Ref', 'Category', 'Withdrawal', 'Deposit', 'Balance'];
     const rows = transactions.map(t => [
       t.date,
       `"${t.description}"`,
+      t.ref,
       t.category,
       t.withdrawal.toFixed(2),
       t.deposit.toFixed(2),
